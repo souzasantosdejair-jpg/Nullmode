@@ -1,0 +1,908 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>FF Mod Menu</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap">
+
+<style>
+/* ─── Design tokens — dark gaming overlay, base black/purple ─── */
+:root {
+  --bg:           #0A0910;
+  --surface:      #100E1C;
+  --surface2:     #181428;
+  --border:       #2E1F54;
+  --border2:      #4A2F80;
+  --accent:       #8B35D6;
+  --accent2:      #A855F7;
+  --accent-glow:  rgba(139, 53, 214, 0.35);
+  --accent-glow2: rgba(168, 85, 247, 0.18);
+  --fg:           #E8E0F5;
+  --fg2:          #A090C0;
+  --fg3:          #6A5590;
+  --danger:       #FF4D6A;
+  --success:      #3DDC84;
+  --gold:         #FFB830;
+  color-scheme:   dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: 24px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background-image:
+    radial-gradient(ellipse 60% 40% at 20% 20%, rgba(88,28,180,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 80%, rgba(120,40,200,0.10) 0%, transparent 60%);
+}
+
+/* ─── Menu shell ─── */
+.menu {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(139,53,214,0.12),
+    0 4px 40px rgba(0,0,0,0.7),
+    0 0 60px rgba(139,53,214,0.12);
+}
+
+/* ─── Header ─── */
+.header {
+  background: linear-gradient(135deg, #1A0E35 0%, #120928 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 20px 14px;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--accent-glow) 0%, transparent 60%);
+  pointer-events: none;
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.logo-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-icon {
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, var(--accent) 0%, #5B1FA3 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 16px var(--accent-glow);
+  flex-shrink: 0;
+}
+.logo-icon svg { width: 18px; height: 18px; fill: #fff }
+.logo-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  color: #fff;
+  line-height: 1;
+}
+.logo-tag {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--accent2);
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(61,220,132,0.10);
+  border: 1px solid rgba(61,220,132,0.25);
+  border-radius: 20px;
+  padding: 5px 11px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--success);
+  letter-spacing: 0.04em;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 6px var(--success);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1) }
+  50%       { opacity: 0.6; transform: scale(0.85) }
+}
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+.meta-badge {
+  font-size: 10px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.meta-badge span { color: var(--accent2) }
+
+/* ─── Tabs ─── */
+.tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0 8px;
+}
+.tab {
+  flex: 1;
+  padding: 11px 6px;
+  text-align: center;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.18s, border-color 0.18s;
+  user-select: none;
+}
+.tab.active {
+  color: var(--accent2);
+  border-color: var(--accent2);
+}
+.tab:hover:not(.active) { color: var(--fg2) }
+
+/* ─── Content panels ─── */
+.panel { display: none; padding: 8px 0 4px }
+.panel.active { display: block }
+
+/* ─── Section label ─── */
+.section-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg3);
+  padding: 10px 20px 6px;
+}
+
+/* ─── Option rows ─── */
+.option {
+  padding: 11px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border-top: 1px solid transparent;
+  transition: background 0.14s;
+  position: relative;
+}
+.option:hover { background: rgba(139,53,214,0.06) }
+.option.active-row { background: rgba(139,53,214,0.08) }
+.option.active-row::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--accent2), var(--accent));
+  border-radius: 0 2px 2px 0;
+}
+
+.option-icon {
+  width: 30px;
+  height: 30px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-size: 14px;
+}
+.option.active-row .option-icon {
+  background: var(--accent-glow2);
+  border-color: var(--border2);
+}
+.option-body { flex: 1; min-width: 0 }
+.option-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg);
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+}
+.option-desc {
+  font-size: 11px;
+  color: var(--fg3);
+  margin-top: 2px;
+  line-height: 1.45;
+}
+.option-ctrl { flex-shrink: 0; display: flex; align-items: center; margin-top: 4px }
+
+/* ─── Toggle switch ─── */
+.toggle {
+  width: 42px;
+  height: 24px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  background: var(--fg3);
+  border-radius: 50%;
+  transition: transform 0.2s, background 0.2s;
+}
+.toggle.on {
+  background: var(--accent);
+  border-color: var(--accent2);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+.toggle.on::after {
+  background: #fff;
+  transform: translateX(18px);
+}
+
+/* ─── Slider option ─── */
+.slider-row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+.slider-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.slider-header .option-icon { flex-shrink: 0 }
+.slider-header .option-body { flex: 1; min-width: 0 }
+.slider-val-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 0 0 44px;
+}
+.slider-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent2);
+  min-width: 42px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.range-track { flex: 1; position: relative; height: 20px; display: flex; align-items: center }
+.range-track input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--surface2);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+.range-track input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px var(--accent-glow);
+  border: 2px solid rgba(255,255,255,0.2);
+}
+.range-track input[type=range]::-moz-range-thumb {
+  width: 14px; height: 14px;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.2);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+.range-fill {
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 0;
+  transition: width 0.08s;
+}
+
+/* ─── Antilag button ─── */
+.btn-option {
+  width: 100%;
+  background: linear-gradient(135deg, #1E103A 0%, #15092A 100%);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  margin: 2px 20px;
+  width: calc(100% - 40px);
+  padding: 11px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  color: var(--fg);
+  text-align: left;
+  transition: background 0.16s, box-shadow 0.16s, border-color 0.16s;
+  position: relative;
+  overflow: hidden;
+}
+.btn-option::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--accent-glow2), transparent);
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+.btn-option:hover::before { opacity: 1 }
+.btn-option:hover {
+  border-color: var(--accent2);
+  box-shadow: 0 0 14px var(--accent-glow);
+}
+.btn-option.firing {
+  border-color: var(--success);
+  box-shadow: 0 0 14px rgba(61,220,132,0.3);
+  background: linear-gradient(135deg, #0E2A1A 0%, #091A10 100%);
+}
+.btn-icon {
+  width: 32px; height: 32px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+  transition: border-color 0.16s;
+}
+.btn-option.firing .btn-icon { border-color: rgba(61,220,132,0.4) }
+.btn-body { flex: 1; min-width: 0 }
+.btn-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px; font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+.btn-desc { font-size: 11px; color: var(--fg3); margin-top: 2px; line-height: 1.45 }
+.btn-status {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  background: rgba(139,53,214,0.15);
+  color: var(--fg3);
+  border: 1px solid var(--border);
+  transition: background 0.16s, color 0.16s, border-color 0.16s;
+}
+.btn-option.firing .btn-status {
+  background: rgba(61,220,132,0.15);
+  color: var(--success);
+  border-color: rgba(61,220,132,0.35);
+}
+
+/* ─── Speed slider (2nd slider) ─── */
+.slider2 input[type=range]::-webkit-slider-thumb {
+  background: linear-gradient(135deg, var(--gold), #E09000);
+}
+.slider2 .range-fill {
+  background: linear-gradient(90deg, #C07000 0%, var(--gold) 100%);
+}
+.slider2 .slider-val { color: var(--gold) }
+
+/* ─── Footer ─── */
+.footer {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.footer-ver {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--fg3);
+  text-transform: uppercase;
+}
+.panic-btn {
+  background: rgba(255,77,106,0.10);
+  border: 1px solid rgba(255,77,106,0.25);
+  border-radius: 7px;
+  padding: 6px 13px;
+  color: var(--danger);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.16s, box-shadow 0.16s;
+}
+.panic-btn:hover {
+  background: rgba(255,77,106,0.18);
+  box-shadow: 0 0 10px rgba(255,77,106,0.2);
+}
+.panic-btn:active {
+  background: rgba(255,77,106,0.30);
+}
+
+/* ─── Divider ─── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+/* ─── Active count badge on tab ─── */
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px; height: 16px;
+  background: var(--accent);
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  margin-left: 4px;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+  transition: background 0.2s;
+}
+</style>
+
+<div class="menu">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div class="logo-block">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2zm-1 14l-4-4 1.41-1.41L11 13.17l6.59-6.58L19 8l-8 8z"/></svg>
+        </div>
+        <div>
+          <div class="logo-name">NULLMOD</div>
+          <div class="logo-tag">Free Fire Enhanced</div>
+        </div>
+      </div>
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        ATIVO
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="meta-badge">Servidor <span>BR-SP</span></div>
+      <div class="meta-badge">Latência <span id="ping-val">38ms</span></div>
+      <div class="meta-badge">Sessão <span>12m</span></div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" data-tab="combate">Combate <span class="tab-badge" id="badge-combate">0</span></div>
+    <div class="tab" data-tab="visao">Visão <span class="tab-badge" id="badge-visao">0</span></div>
+    <div class="tab" data-tab="movimento">Movim. <span class="tab-badge" id="badge-movimento">0</span></div>
+    <div class="tab" data-tab="misc">Misc <span class="tab-badge" id="badge-misc">0</span></div>
+  </div>
+
+  <!-- ── COMBATE ── -->
+  <div class="panel active" id="panel-combate">
+
+    <div class="section-label">Mira & Precisão</div>
+
+    <!-- Aimbot slider -->
+    <div class="option slider-row" id="opt-aimbot">
+      <div class="slider-header">
+        <div class="option-icon">🎯</div>
+        <div class="option-body">
+          <div class="option-name">Aimbot</div>
+          <div class="option-desc">Assistência de mira automática. Valores mais altos = snap mais agressivo. Recomendado 30–50% para uso discreto.</div>
+        </div>
+        <div class="option-ctrl">
+          <div class="toggle" id="toggle-aimbot" data-key="aimbot"></div>
+        </div>
+      </div>
+      <div class="slider-val-row">
+        <div class="range-track">
+          <div class="range-fill" id="fill-aimbot"></div>
+          <input type="range" id="range-aimbot" min="10" max="80" value="35" step="1">
+        </div>
+        <div class="slider-val" id="val-aimbot">35%</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Auto Headshot -->
+    <div class="option" id="opt-headshot">
+      <div class="option-icon">💥</div>
+      <div class="option-body">
+        <div class="option-name">Auto Headshot</div>
+        <div class="option-desc">Força todas as rajadas a acertarem a cabeça do alvo. Funciona em conjunto com o Aimbot.</div>
+      </div>
+      <div class="option-ctrl">
+        <div class="toggle" id="toggle-headshot" data-key="headshot"></div>
+      </div>
+    </div>
+
+    <!-- No Recoil -->
+    <div class="option" id="opt-recoil">
+      <div class="option-icon">🔫</div>
+      <div class="option-body">
+        <div class="option-name">Sem Recuo</div>
+        <div class="option-desc">Elimina 100% do recuo de todas as armas. Rajadas longas ficam precisas como tiro único.</div>
+      </div>
+      <div class="option-ctrl">
+        <div class="toggle" id="toggle-recoil" data-key="recoil"></div>
+      </div>
+    </div>
+
+    <!-- Infinite Ammo -->
+    <div class="option" id="opt-ammo">
+      <div class="option-icon">📦</div>
+      <div class="option-body">
+        <div class="option-name">Munição Infinita</div>
+        <div class="option-desc">Pente nunca esvazia. Animação de recarga ainda acontece, mas não consome balas do inventário.</div>
+      </div>
+      <div class="option-ctrl">
+        <div class="toggle" id="toggle-ammo" data-key="ammo"></div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:6px">Performance</div>
+
+    <!-- Antilag -->
+    <button class="btn-option" id="btn-antilag" type="button">
+      <div class="btn-icon">⚡</div>
+      <div class="btn-body">
+        <div class="btn-name">Anti-Lag</div>
+        <div class="btn-desc">Otimiza pacotes de rede e reduz interpolação. Diminui ping e atraso de resposta do servidor.</div>
+      </div>
+      <div class="btn-status" id="antilag-status">OFF</div>
+    </button>
+
+  </div>
+
+  <!-- ── VISÃO ── -->
+  <div class="panel" id="panel-visao">
+
+    <div class="section-label">Detecção de Inimigos</div>
+
+    <!-- Wall ESP -->
+    <div class="option" id="opt-esp">
+      <div class="option-icon">👁️</div>
+      <div class="option-body">
+        <div class="option-name">Wall ESP</div>
+        <div class="option-desc">Exibe caixas coloridas ao redor de inimigos mesmo através de paredes e obstáculos.</div>
+      </div>
+      <div class="option-ctrl">
+        <div class="toggle" id="toggle-esp" data-key="esp"></div>
+      </div>
+    </div>
+
+    <!-- Skeleton ESP -->
+    <div class="option" id="opt-skel">
+      <div class="option-icon">🦴</div>
+      <div class="option-body">
+        <div class="option-name">Skeleton ESP</div>
+        <div class="option-desc">Mostra o esqueleto completo do inimigo. Revela postura, agachamento e direção do olhar.</div>
+      </div>
+      <div class="option-ctrl">
+        <div class="toggle" id="toggle-skel" data-key="skel"></div>
+      </div>
+    </div>
+
+    <!-- Loot ESP -->
+    <div class="option" id="opt-loot">
+      <div class="option-icon">💎</div>
+      <div class="option-body">
+        <div class="option-name">Loot ESP</div>
+        <div class="option-desc">Destaca itens raros e armas de alto nível no mapa com labels de nome e raridade.</div>
+      </div>
+      <div class="option-ctrl">
+        <div class="toggle" id="toggle-loot" data-key="loot"></div>
+      </div>
+    </div>
+
+    <!-- Radar hack -->
+    <div class="option" id="opt-radar">
+      <div class="option-icon">📡</div>
+      <div class="option-body">
+        <div class="option-name">Radar Hack</div>
+        <div class="option-desc">Revela todos os inimigos no minimapa independente de eles estarem em silêncio ou agachados.</div>
+      </div>
+      <div class="option-ctrl">
+        <div class="toggle" id="toggle-radar" data-key="radar"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── MOVIMENTO ── -->
+  <div class="panel" id="panel-movimento">
+
+    <div class="section-label">Velocidade</div>
+
+    <!-- Speed slider -->
+    <div class="option slider-row slider2" id="opt-speed">
+      <div class="slider-header">
+        <div class="option-icon">💨</div>
+        <div class="option-body">
+          <div class="option-name">Speed Hack</div>
+          <div class="option-desc">Multiplica a velocidade de corrida. Acima de 60% fica visível para outros jogadores.</div>
+        </div>
+        <div class="option-ctrl">
+          <div class="toggle" id="toggle-speed" data-key="speed"></div>
+        </div>
+      </div>
+      <div class="slider-val-row">
+        <div class="range-track">
+          <div class="range-fill" id="fill-speed"></div>
+          <input type="range" id="range-speed" min="10" max="80" value="25" step="1">
+        </div>
+        <div class="slider-val" id="val-speed">25%</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Fly mode -->
+    <div class="option" id="opt-fly">
+      <div class="option-icon">🦅</div>
+      <div class="option-body">
+        <div class="option-name">Fly Mode</div>
+        <div class="option-desc">Permite movimento vertical livre. Use com cautela — ativa verificação anti-cheat em ~8s de uso contínuo.</div>
+      </div>
+      <div class="option-ctrl">
+        <div class="toggle" id="toggle-fly" data-key="fly"></div>
+      </div>
+    </div>
+
+    <!-- Bunny Hop -->
+    <div class="option" id="opt-bhop">
+      <div class="option-icon">🐇</div>
+      <div class="option-body">
+        <div class="option-name">Bunny Hop</div>
+        <div class="option-desc">Executa pulos encadeados automaticamente. Mantém velocidade máxima em movimento e dificulta mira inimiga.</div>
+      </div>
+      <div class="option-ctrl">
+        <div class="toggle" id="toggle-bhop" data-key="bhop"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── MISC ── -->
+  <div class="panel" id="panel-misc">
+
+    <div class="section-label">Coleta & Sobrevivência</div>
+
+    <!-- Auto loot -->
+    <div class="option" id="opt-autoloot">
+      <div class="option-icon">🧲</div>
+      <div class="option-body">
+        <div class="option-name">Auto Loot</div>
+        <div class="option-desc">Coleta automaticamente armas, munição e itens ao passar próximo. Prioriza raridade mais alta.</div>
+      </div>
+      <div class="option-ctrl">
+        <div class="toggle" id="toggle-autoloot" data-key="autoloot"></div>
+      </div>
+    </div>
+
+    <!-- God mode -->
+    <div class="option" id="opt-god">
+      <div class="option-icon">🛡️</div>
+      <div class="option-body">
+        <div class="option-name">God Mode</div>
+        <div class="option-desc">HP não decresce por dano recebido. Alto risco de detecção — use apenas em partidas privadas.</div>
+      </div>
+      <div class="option-ctrl">
+        <div class="toggle" id="toggle-god" data-key="god"></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Spoof UID -->
+    <button class="btn-option" id="btn-spoof" type="button">
+      <div class="btn-icon">🔀</div>
+      <div class="btn-body">
+        <div class="btn-name">Spoof UID</div>
+        <div class="btn-desc">Rotaciona o identificador de conta a cada partida para dificultar rastreamento de bans.</div>
+      </div>
+      <div class="btn-status" id="spoof-status">OFF</div>
+    </button>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-ver">v2.4.1 · Undetected</div>
+    <button class="panic-btn" id="panic-btn" type="button">⚠ PANIC OFF</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* ── Toggles ── */
+  const activeKeys = new Set();
+
+  function updateBadge(tabId){
+    const panel = document.getElementById('panel-' + tabId);
+    if(!panel) return;
+    const on = panel.querySelectorAll('.toggle.on').length
+      + (tabId === 'combate' && document.getElementById('btn-antilag').classList.contains('firing') ? 1 : 0)
+      + (tabId === 'misc' && document.getElementById('btn-spoof').classList.contains('firing') ? 1 : 0);
+    const badge = document.getElementById('badge-' + tabId);
+    if(badge){
+      badge.textContent = on;
+      badge.style.background = on > 0 ? 'var(--accent)' : 'var(--border2)';
+    }
+  }
+
+  function getTabFor(optionEl){
+    const panel = optionEl.closest('.panel');
+    if(!panel) return null;
+    return panel.id.replace('panel-','');
+  }
+
+  document.querySelectorAll('.toggle').forEach(tog => {
+    tog.addEventListener('click', () => {
+      tog.classList.toggle('on');
+      const key = tog.dataset.key;
+      const optRow = document.getElementById('opt-' + key);
+      if(optRow) optRow.classList.toggle('active-row', tog.classList.contains('on'));
+      if(key === 'aimbot'){
+        const sliderSection = document.getElementById('opt-aimbot');
+        sliderSection.style.opacity = tog.classList.contains('on') ? '1' : '0.5';
+      }
+      const tab = getTabFor(tog);
+      if(tab) updateBadge(tab);
+    });
+  });
+
+  /* ── Antilag button ── */
+  const btnAntilag = document.getElementById('btn-antilag');
+  const antilagStatus = document.getElementById('antilag-status');
+  const pingVal = document.getElementById('ping-val');
+  let antilagActive = false;
+  let pingInterval = null;
+
+  btnAntilag.addEventListener('click', () => {
+    antilagActive = !antilagActive;
+    btnAntilag.classList.toggle('firing', antilagActive);
+    antilagStatus.textContent = antilagActive ? 'ON' : 'OFF';
+    if(antilagActive){
+      let ping = 38;
+      const target = 14 + Math.floor(Math.random() * 8);
+      pingInterval = setInterval(() => {
+        if(ping > target) ping = Math.max(target, ping - 3 - Math.floor(Math.random()*4));
+        pingVal.textContent = ping + 'ms';
+      }, 120);
+    } else {
+      clearInterval(pingInterval);
+      pingVal.textContent = '38ms';
+    }
+    updateBadge('combate');
+  });
+
+  /* ── Spoof button ── */
+  const btnSpoof = document.getElementById('btn-spoof');
+  const spoofStatus = document.getElementById('spoof-status');
+  btnSpoof.addEventListener('click', () => {
+    btnSpoof.classList.toggle('firing');
+    spoofStatus.textContent = btnSpoof.classList.contains('firing') ? 'ON' : 'OFF';
+    updateBadge('misc');
+  });
+
+  /* ── Sliders ── */
+  function initSlider(rangeId, fillId, valId){
+    const range = document.getElementById(rangeId);
+    const fill  = document.getElementById(fillId);
+    const val   = document.getElementById(valId);
+    function update(){
+      const pct = ((range.value - range.min) / (range.max - range.min)) * 100;
+      fill.style.width = pct + '%';
+      val.textContent  = range.value + '%';
+    }
+    range.addEventListener('input', update);
+    update();
+  }
+  initSlider('range-aimbot','fill-aimbot','val-aimbot');
+  initSlider('range-speed','fill-speed','val-speed');
+
+  /* ── Tabs ── */
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  /* ── Panic button — desativa tudo ── */
+  document.getElementById('panic-btn').addEventListener('click', () => {
+    document.querySelectorAll('.toggle.on').forEach(t => {
+      t.classList.remove('on');
+      const key = t.dataset.key;
+      const row = document.getElementById('opt-' + key);
+      if(row) row.classList.remove('active-row');
+    });
+    if(antilagActive){
+      antilagActive = false;
+      btnAntilag.classList.remove('firing');
+      antilagStatus.textContent = 'OFF';
+      clearInterval(pingInterval);
+      pingVal.textContent = '38ms';
+    }
+    if(btnSpoof.classList.contains('firing')){
+      btnSpoof.classList.remove('firing');
+      spoofStatus.textContent = 'OFF';
+    }
+    ['combate','visao','movimento','misc'].forEach(updateBadge);
+  });
+
+  /* ── Init badges ── */
+  ['combate','visao','movimento','misc'].forEach(updateBadge);
+})();
+</script>
+
+</body></html>
